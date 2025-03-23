@@ -23,16 +23,9 @@ const io = new Server(httpServer, {
 });
 
 let users = {};
-io.on("connection", (socket) => {
+io.of("/chat").on("connection", (socket) => {
     socket.emit("sysmsg", `${socket.id}歡迎加入聊天室`);
-    socket.on("chatMessage", (msg) => {
-        console.log("message", msg);
-        socket.broadcast.emit("chatMessage", msg);
-    });
 
-    socket.on("set_username", (username) => {
-        users[username] = socket.id;
-    });
     socket.on("join_room", (room) => {
         console.log(`${socket.id} 進入房間: ${room}`);
         socket.join(room); // 用戶加入房間
@@ -43,8 +36,11 @@ io.on("connection", (socket) => {
     socket.on('send_message', (messageData) => {
         console.log("messageData", messageData);
         const {sender_id,chat_id,message} = messageData;
+        socket.broadcast.emit('receive_message', messageData);
         if(chat_id){
-            io.to(chat_id).emit('receive_message', messageData);
+            socket.to(chat_id).emit('receive_message', messageData);
+            console.log("receive_message", messageData);
+            
         }else{
             if(users[sender_id]){
                 io.to(users[sender_id]).emit('receive_message', messageData);
