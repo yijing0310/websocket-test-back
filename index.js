@@ -1,8 +1,9 @@
 import express from "express";
 import cors from "cors";
+import db from "./utils/connect-mysql.js";
 import { Server } from "socket.io";
 import { createServer } from "http";
-import { log } from "console";
+
 
 const app = express();
 const httpServer = createServer();
@@ -33,9 +34,23 @@ io.of("/chat").on("connection", (socket) => {
     });
 
     // 發送訊息
-    socket.on('send_message', (messageData) => {
+    socket.on('send_message', async(messageData) => {
         console.log("messageData", messageData);
         const {sender_id,chat_id,message} = messageData;
+        try {
+            // 將訊息插入到 messages 表中
+            const sql = `INSERT INTO messages (chat_id, sender_id, message) VALUES (?, ?, ?)`;
+            const [result] = await db.query(sql, [chat_id, sender_id, message]);
+    
+            if (result.affectedRows > 0) {
+                console.log("訊息發送成功並儲存");
+            } else {
+                console.error("訊息發送失敗");
+            }
+        } catch (err) {
+            console.error(err,"內部伺服器錯誤");
+        }
+
         socket.broadcast.emit('receive_message', messageData);
         if(chat_id){
             socket.to(chat_id).emit('receive_message', messageData);
@@ -74,9 +89,6 @@ io.of("/chat").on("connection", (socket) => {
     //     );
     // });
     // 當用戶斷開連接時
-    // socket.on("disconnect", () => {
-    //     console.log("user disconnected");
-    // });
     socket.on("disconnect", () => {
         console.log("user disconnected: " + socket.id);
     });
