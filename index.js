@@ -29,10 +29,11 @@ let userRooms = {};
 
 io.of("/chat").on("connection", (socket) => {
     console.log("新用戶連接，socket ID:", socket.id);
-    
+    let nowuserId;
     // 處理用戶 ID
     socket.on("userId", (id) => {
         // 記錄用戶的 socket ID
+        nowuserId = id;
         users[id] = socket.id;
         console.log(`用戶 ${id} 連接，socket ID: ${socket.id}`);
         
@@ -53,6 +54,28 @@ io.of("/chat").on("connection", (socket) => {
         
         // 通知用戶成功加入房間
         socket.emit("room_joined", { room: roomId, message: `已加入聊天室: ${roomId}` });
+        
+        const fetchRead = async () => {
+            try {
+                // 確認聊天訊息和聊天室
+                const sqlchat = `SELECT  messages.id FROM messages left join chats on messages.chat_id  = chats.id where chat_id =? AND sender_id != ? AND messages.is_read = FALSE ;`;
+                const [messages] = await db.query(sqlchat, [+roomId,+nowuserId]);
+                const messageIds = messages.map(msg => msg.id);
+                // 將更新已讀訊息
+                const sql = `UPDATE messages SET is_read = TRUE WHERE id IN (?);`;
+                const [result] = await db.query(sql,[messageIds]);
+        
+                if (result.affectedRows > 0) {
+                    console.log("已讀訊息成功");
+                } else {
+                    console.log("已讀訊息失敗");
+                }
+            } catch (err) {
+                console.log("資料庫錯誤:", err);
+            }
+        };
+        fetchRead()
+
     });
 
     // 離開房間
