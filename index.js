@@ -60,6 +60,7 @@ io.of("/chat").on("connection", (socket) => {
                 // 確認聊天訊息和聊天室
                 const sqlchat = `SELECT  messages.id FROM messages left join chats on messages.chat_id  = chats.id where chat_id =? AND sender_id != ? AND messages.is_read = FALSE ;`;
                 const [messages] = await db.query(sqlchat, [+roomId,+nowuserId]);
+                if(messages.length === 0) return;
                 const messageIds = messages.map(msg => msg.id);
                 // 將更新已讀訊息
                 const sql = `UPDATE messages SET is_read = TRUE WHERE id IN (?);`;
