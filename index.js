@@ -51,57 +51,58 @@ io.of("/chat").on("connection", (socket) => {
         userRooms[socket.id] = roomId;
 
         console.log(`Socket ${socket.id} 進入房間: ${roomId}`);
+        // const fetchRead = async () => {
+        //     try {
+        //         // 確認聊天訊息和聊天室
+        //         const sqlchat = `
+        //             SELECT messages.id 
+        //             FROM messages 
+        //             LEFT JOIN chats ON messages.chat_id = chats.id 
+        //             WHERE chat_id = ? AND sender_id != ? AND messages.is_read = 0
+        //         `;
+        //         const [messages] = await db.query(sqlchat, [roomId, nowuserId]);
 
+        //         if (messages.length > 0) {
+        //             const messageIds = messages.map((msg) => msg.id);
+
+        //             // 將更新已讀訊息
+        //             const updateSql = `
+        //                 UPDATE messages 
+        //                 SET is_read = 1 
+        //                 WHERE id IN (?) AND chat_id = ? AND sender_id != ?
+        //             `;
+        //             const [result] = await db.query(updateSql, [
+        //                 messageIds,
+        //                 roomId,
+        //                 nowuserId,
+        //             ]);
+
+        //             if (result.affectedRows > 0) {
+        //                 console.log("已讀訊息成功");
+
+        //                 // 通知聊天室內的所有用戶訊息已讀
+        //                 io.of("/chat").to(roomId).emit("messageRead", {
+        //                     messageIds,
+        //                     userId: nowuserId,
+        //                 });
+        //             } else {
+        //                 console.log("已讀訊息失敗");
+        //             }
+        //         }
+        //     } catch (err) {
+        //         console.error("資料庫錯誤:", err);
+        //     }
+        // };
+
+        // fetchRead();
         // 通知用戶成功加入房間
         socket.emit("room_joined", {
             room: roomId,
             message: `已加入聊天室: ${roomId}`,
         });
-
-        const fetchRead = async () => {
-            try {
-                // 確認聊天訊息和聊天室
-                const sqlchat = `
-                    SELECT messages.id 
-                    FROM messages 
-                    LEFT JOIN chats ON messages.chat_id = chats.id 
-                    WHERE chat_id = ? AND sender_id != ? AND messages.is_read = 0
-                `;
-                const [messages] = await db.query(sqlchat, [roomId, nowuserId]);
-
-                if (messages.length > 0) {
-                    const messageIds = messages.map((msg) => msg.id);
-
-                    // 將更新已讀訊息
-                    const updateSql = `
-                        UPDATE messages 
-                        SET is_read = 1 
-                        WHERE id IN (?) AND chat_id = ? AND sender_id != ?
-                    `;
-                    const [result] = await db.query(updateSql, [
-                        messageIds,
-                        roomId,
-                        nowuserId,
-                    ]);
-
-                    if (result.affectedRows > 0) {
-                        console.log("已讀訊息成功");
-
-                        // 通知聊天室內的所有用戶訊息已讀
-                        io.of("/chat").to(roomId).emit("messageRead", {
-                            messageIds,
-                            userId: nowuserId,
-                        });
-                    } else {
-                        console.log("已讀訊息失敗");
-                    }
-                }
-            } catch (err) {
-                console.error("資料庫錯誤:", err);
-            }
-        };
-
-        fetchRead();
+        
+        // 通知所有用戶訊息有人加入房間
+        io.of("/chat").to(roomId).emit("someoneIntoRoom", "用戶進入聊天室");
     });
 
     // 離開房間
