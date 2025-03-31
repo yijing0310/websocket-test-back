@@ -55,9 +55,9 @@ io.of("/chat").on("connection", (socket) => {
         //     try {
         //         // 確認聊天訊息和聊天室
         //         const sqlchat = `
-        //             SELECT messages.id 
-        //             FROM messages 
-        //             LEFT JOIN chats ON messages.chat_id = chats.id 
+        //             SELECT messages.id
+        //             FROM messages
+        //             LEFT JOIN chats ON messages.chat_id = chats.id
         //             WHERE chat_id = ? AND sender_id != ? AND messages.is_read = 0
         //         `;
         //         const [messages] = await db.query(sqlchat, [roomId, nowuserId]);
@@ -67,8 +67,8 @@ io.of("/chat").on("connection", (socket) => {
 
         //             // 將更新已讀訊息
         //             const updateSql = `
-        //                 UPDATE messages 
-        //                 SET is_read = 1 
+        //                 UPDATE messages
+        //                 SET is_read = 1
         //                 WHERE id IN (?) AND chat_id = ? AND sender_id != ?
         //             `;
         //             const [result] = await db.query(updateSql, [
@@ -100,7 +100,7 @@ io.of("/chat").on("connection", (socket) => {
             room: roomId,
             message: `已加入聊天室: ${roomId}`,
         });
-        
+
         // 通知所有用戶訊息有人加入房間
         io.of("/chat").to(roomId).emit("someoneIntoRoom", "用戶進入聊天室");
     });
@@ -131,6 +131,18 @@ io.of("/chat").on("connection", (socket) => {
 
         // 清除房間記錄
         delete userRooms[socket.id];
+    });
+
+    // 正在輸入
+    socket.on("typing", (data) => {
+        const { chatroom_Id,typer } = data;
+        console.log(data);
+        socket.to(chatroom_Id).emit("typing", "用戶正在輸入");
+    });
+    socket.on("stoptyping", (data) => {
+        const { chatroom_Id,typer } = data;
+        console.log(data);
+        socket.emit("stoptyping", "用戶停止輸入");
     });
 
     // 發送訊息
