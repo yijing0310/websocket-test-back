@@ -133,17 +133,6 @@ io.of("/chat").on("connection", (socket) => {
         delete userRooms[socket.id];
     });
 
-    // 正在輸入
-    socket.on("typing", (data) => {
-        const { chatroom_Id,typer } = data;
-        console.log(data);
-        socket.to(chatroom_Id).emit("typing", "用戶正在輸入");
-    });
-    socket.on("stoptyping", (data) => {
-        const { chatroom_Id,typer } = data;
-        console.log(data);
-        socket.emit("stoptyping", "用戶停止輸入");
-    });
 
     // 發送訊息
     socket.on("send_message", async (messageData) => {
