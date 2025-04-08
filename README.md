@@ -1,7 +1,11 @@
 # GYMBOO - GYM步空間
 
+
+<img src="public/gym-logo.svg" alt="健身房圖標" width="200" />
+
+
 這是一個全面的健身房網站系統，旨在提供健身愛好者一個便捷的在線平台。用戶可以在這裡預約健身課程、租借健身產品、與其他用戶加為好友，並通過即時聊天室進行交流。專案由三個主要部分組成：前端界面、後端 API、以及即時聊天室後端。整個系統基於現代的技術架構，提供用戶優質的服務。
-![健身房圖標](public/gym-logo.svg)
+
 
 - **前端**：[Gym Next](https://github.com/Owenonroad1014/gym-next)
 - **後端**：[Gym Backend](https://github.com/Owenonroad1014/gym-backend)
