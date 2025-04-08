@@ -49,7 +49,7 @@
 
 在開始之前，你需要創建資料庫。請按照以下步驟操作：
 
-- 在前端的 `database` 資料夾中，創建一個名為 `gymboo_database` 的資料庫。這是專案使用的資料庫，所有的資料將會存儲在此資料庫中。
+- 將在前端的 `database` 資料夾裡的 `gymboo_database.sql`文件中的資料庫數據導入資料庫(MySQL)。
 
 ### 2. 安裝前端
 
@@ -63,7 +63,7 @@
      ```bash
      npm install
     ```
-3. 運前端專案：
+3. 運行前端專案：
     ```bash
     npm run dev
     ```
